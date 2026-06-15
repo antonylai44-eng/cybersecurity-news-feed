@@ -1,0 +1,31 @@
+name: Daily Cybersecurity Telegram News
+
+on:
+  schedule:
+    # 08:00 Asia/Hong_Kong is 00:00 UTC.
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  send-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send Telegram digest
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NEWS_TIMEZONE: Asia/Hong_Kong
+          NEWS_MAX_ITEMS: "10"
+          NEWS_LOOKBACK_HOURS: "72"
+        run: python cyber_news_feed.py
