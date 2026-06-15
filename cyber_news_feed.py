@@ -315,21 +315,23 @@ def analyst_summary(item: NewsItem, translated_summary: str) -> str:
     return f"重點評估：{finding}。"
 
 
-def build_digest(items: list[NewsItem], timezone_name: str) -> str:
+def build_digest(items: list[NewsItem], timezone_name: str, digest_title: str) -> str:
     tz = ZoneInfo(timezone_name)
     today = dt.datetime.now(tz).strftime("%Y年%m月%d日")
     translator = GoogleTranslator(source="auto", target="zh-TW")
-    lines = [f"網絡安全每日情報摘要 - {today}", ""]
+    lines = [f"{digest_title} - {today}", ""]
 
     for index, item in enumerate(items, start=1):
         title_zh = translate(item.title, translator)
         translated_summary = translate(item.summary or item.title, translator)
         summary_zh = analyst_summary(item, translated_summary)
+        summary_en = clean_text(item.summary or item.title, 420)
         lines.extend(
             [
                 f"{index}.",
                 f"• {title_zh}",
                 f"• 摘要：{summary_zh}",
+                f"• 英文摘要：{summary_en}",
                 f"• 來源連結：{item.link}",
                 "",
             ]
@@ -393,6 +395,7 @@ def main() -> None:
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     timezone_name = os.getenv("NEWS_TIMEZONE", "Asia/Hong_Kong").strip()
+    digest_title = os.getenv("NEWS_TITLE", "網絡安全每日情報摘要").strip()
     max_items = int(os.getenv("NEWS_MAX_ITEMS", "10"))
     lookback_hours = int(os.getenv("NEWS_LOOKBACK_HOURS", "72"))
 
@@ -406,7 +409,7 @@ def main() -> None:
     if not items:
         raise SystemExit("No news items were found.")
 
-    digest = build_digest(items, timezone_name)
+    digest = build_digest(items, timezone_name, digest_title)
     if args.dry_run:
         print(digest)
         return

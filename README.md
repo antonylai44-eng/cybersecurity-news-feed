@@ -8,7 +8,9 @@ Daily cybersecurity intelligence digest for Telegram, formatted in Traditional C
 - Prioritizes Hong Kong, China, actively exploited vulnerabilities, ransomware, supply-chain threats, and major vendor advisories.
 - Selects the top 10 items.
 - Translates titles and snippets into Traditional Chinese.
+- Includes the original English summary for cross-checking.
 - Sends the digest to a Telegram private chat.
+- Supports rebranding the digest title through `NEWS_TITLE` so you can reuse the same feed for a different bot.
 
 ## Required Telegram setup
 
@@ -27,6 +29,14 @@ TELEGRAM_BOT_TOKEN="your_bot_token" python cyber_news_feed.py --get-chat-id
 5. Copy the numeric `chat_id` into `.env` as `TELEGRAM_CHAT_ID`.
 
 Private Telegram chats require the numeric `chat_id`. A username such as `helloworld423` is not enough for Bot API delivery.
+
+To reuse the same feed for your new bot, set:
+
+```bash
+TELEGRAM_BOT_TOKEN="your_new_bot_token"
+TELEGRAM_CHAT_ID="your_numeric_chat_id"
+NEWS_TITLE="AI News Daily Digest"
+```
 
 ## Run locally
 
