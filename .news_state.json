@@ -1,7 +1,18 @@
 {
   "ai": {
-    "last_digest_date": null,
-    "last_digest_fingerprints": []
+    "last_digest_date": "2026-06-16",
+    "last_digest_fingerprints": [
+      "openai.com|introducing new capabilities to gpt rosalind",
+      "huggingface.co|introducing nvidia nemotron 3 nano omni long context multimodal intelligence for documents audio and video agents",
+      "openai.com|new openai academy courses for the next era of work",
+      "openai.com|openai to acquire ona",
+      "blog.google|i o 2026 welcome to the agentic gemini era",
+      "blog.google|we re strengthening our presence in alabama through new investments and community support",
+      "news.mit.edu|teaching ai agents to ask better questions by playing battleship",
+      "blog.google|how we used gemini to build google i o 2026",
+      "huggingface.co|nemotron 3 5 content safety customizable multimodal safety for global enterprise ai",
+      "huggingface.co|holo3 1 fast local computer use agents"
+    ]
   },
   "security": {
     "last_digest_date": "2026-06-16",
