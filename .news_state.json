@@ -1,15 +1,21 @@
 {
-  "last_digest_date": "2026-06-16",
-  "last_digest_fingerprints": [
-    "thehackernews.com|chinese hackers abused google workspace rules to steal research and defense emails",
-    "www.bleepingcomputer.com|chinese hackers breach redcap servers steal medical research",
-    "www.bleepingcomputer.com|cisco fixes sd wan vmanage flaw exploited in zero day attacks",
-    "www.govcert.gov.hk|security alert a26 06 16 multiple vulnerabilities in apache http server",
-    "www.govcert.gov.hk|security alert a26 06 27 multiple vulnerabilities in google chrome",
-    "www.govcert.gov.hk|high threat security alert a26 06 26 vulnerability in oracle peoplesoft",
-    "www.cisa.gov|cisa adds two known exploited vulnerabilities to catalog",
-    "www.bleepingcomputer.com|new attack turned microsoft 365 copilot into 1 click data theft tool",
-    "www.bleepingcomputer.com|infinite campus data breach affects 137 000 school staff accounts",
-    "thehackernews.com|critical splunk enterprise flaw lets attackers run code without authentication"
-  ]
+  "ai": {
+    "last_digest_date": null,
+    "last_digest_fingerprints": []
+  },
+  "security": {
+    "last_digest_date": "2026-06-16",
+    "last_digest_fingerprints": [
+      "thehackernews.com|chinese hackers abused google workspace rules to steal research and defense emails",
+      "www.bleepingcomputer.com|chinese hackers breach redcap servers steal medical research",
+      "www.bleepingcomputer.com|cisco fixes sd wan vmanage flaw exploited in zero day attacks",
+      "www.govcert.gov.hk|security alert a26 06 16 multiple vulnerabilities in apache http server",
+      "www.govcert.gov.hk|security alert a26 06 27 multiple vulnerabilities in google chrome",
+      "www.govcert.gov.hk|high threat security alert a26 06 26 vulnerability in oracle peoplesoft",
+      "www.cisa.gov|cisa adds two known exploited vulnerabilities to catalog",
+      "www.bleepingcomputer.com|new attack turned microsoft 365 copilot into 1 click data theft tool",
+      "www.bleepingcomputer.com|infinite campus data breach affects 137 000 school staff accounts",
+      "thehackernews.com|critical splunk enterprise flaw lets attackers run code without authentication"
+    ]
+  }
 }

@@ -1,10 +1,9 @@
-name: Daily Cybersecurity Telegram News
+name: Daily AI Telegram News
 
 on:
   schedule:
-    # 08:07 Asia/Hong_Kong is 00:07 UTC.
-    # GitHub can delay or drop scheduled jobs near the top of the hour during high load.
-    - cron: "7 0 * * *"
+    # 08:17 Asia/Hong_Kong is 00:17 UTC.
+    - cron: "17 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -33,7 +32,8 @@ jobs:
           NEWS_TIMEZONE: Asia/Hong_Kong
           NEWS_MAX_ITEMS: "10"
           NEWS_LOOKBACK_HOURS: "72"
-          NEWS_TOPIC: security
+          NEWS_TITLE: AI 每日情報摘要
+          NEWS_TOPIC: ai
           NEWS_STATE_FILE: .news_state.json
         run: python cyber_news_feed.py
 
@@ -43,5 +43,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .news_state.json
           git diff --cached --quiet && exit 0
-          git commit -m "Update daily news state"
+          git commit -m "Update daily AI news state"
           git push
