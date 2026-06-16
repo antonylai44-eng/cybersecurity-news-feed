@@ -370,19 +370,60 @@ def send_telegram(text: str, bot_token: str, chat_id: str) -> None:
         time.sleep(0.5)
 
 
-def print_chat_id(bot_token: str) -> None:
+def get_recent_chats(bot_token: str) -> list[dict]:
     url = f"https://api.telegram.org/bot{bot_token}/getUpdates"
     response = requests.get(url, timeout=20)
     response.raise_for_status()
     data = response.json()
-    if not data.get("result"):
-        print("No Telegram updates found. Send /start to the bot in Telegram, then run this again.")
-        return
-    for update in data["result"][-10:]:
+    chats = []
+    for update in data.get("result", [])[-20:]:
         message = update.get("message") or update.get("channel_post") or {}
         chat = message.get("chat") or {}
         if chat.get("id"):
-            print(f"chat_id={chat['id']} type={chat.get('type')} title={chat.get('title') or chat.get('username') or chat.get('first_name')}")
+            chats.append(chat)
+    return chats
+
+
+def print_chat_id(bot_token: str) -> None:
+    chats = get_recent_chats(bot_token)
+    if not chats:
+        print("No Telegram updates found. Send /start to the bot in Telegram once, then run this again.")
+        return
+    for chat in chats:
+        print(
+            f"chat_id={chat['id']} type={chat.get('type')} "
+            f"title={chat.get('title') or chat.get('username') or chat.get('first_name')}"
+        )
+
+
+def resolve_chat_id(bot_token: str, chat_id: str) -> str:
+    if chat_id:
+        return chat_id
+
+    chats = get_recent_chats(bot_token)
+    private_chats = [chat for chat in chats if chat.get("type") == "private" and chat.get("id")]
+    if private_chats:
+        latest_private_chat = private_chats[-1]
+        resolved_chat_id = str(latest_private_chat["id"])
+        print(
+            f"Info: TELEGRAM_CHAT_ID not set; using latest private chat_id={resolved_chat_id}.",
+            file=sys.stderr,
+        )
+        return resolved_chat_id
+
+    unique_chat_ids = {str(chat["id"]) for chat in chats if chat.get("id")}
+    if len(unique_chat_ids) == 1:
+        resolved_chat_id = next(iter(unique_chat_ids))
+        print(
+            f"Info: TELEGRAM_CHAT_ID not set; using the only recent chat_id={resolved_chat_id}.",
+            file=sys.stderr,
+        )
+        return resolved_chat_id
+
+    raise SystemExit(
+        "TELEGRAM_CHAT_ID is required. Send /start to the bot once, then either set TELEGRAM_CHAT_ID "
+        "or rerun when the bot has exactly one recent target chat."
+    )
 
 
 def main() -> None:
@@ -414,8 +455,9 @@ def main() -> None:
         print(digest)
         return
 
-    if not bot_token or not chat_id:
-        raise SystemExit("TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID are required.")
+    if not bot_token:
+        raise SystemExit("TELEGRAM_BOT_TOKEN is required.")
+    chat_id = resolve_chat_id(bot_token, chat_id)
     send_telegram(digest, bot_token, chat_id)
 
 

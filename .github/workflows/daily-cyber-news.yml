@@ -2,8 +2,9 @@ name: Daily Cybersecurity Telegram News
 
 on:
   schedule:
-    # 08:00 Asia/Hong_Kong is 00:00 UTC.
-    - cron: "0 0 * * *"
+    # 08:07 Asia/Hong_Kong is 00:07 UTC.
+    # GitHub can delay or drop scheduled jobs near the top of the hour during high load.
+    - cron: "7 0 * * *"
   workflow_dispatch:
 
 jobs:

@@ -14,7 +14,7 @@ Daily cybersecurity intelligence digest for Telegram, formatted in Traditional C
 
 ## Required Telegram setup
 
-1. Open Telegram and send `/start` to your bot.
+1. Open Telegram and send `/start` to your bot once.
 2. Copy `.env.example` to `.env`.
 3. Add your bot token to `.env`.
 4. Run:
@@ -29,6 +29,7 @@ TELEGRAM_BOT_TOKEN="your_bot_token" python cyber_news_feed.py --get-chat-id
 5. Copy the numeric `chat_id` into `.env` as `TELEGRAM_CHAT_ID`.
 
 Private Telegram chats require the numeric `chat_id`. A username such as `helloworld423` is not enough for Bot API delivery.
+If `TELEGRAM_CHAT_ID` is not set, the script will try to use the latest recent private chat automatically after that one-time `/start`.
 
 To reuse the same feed for your new bot, set:
 
@@ -54,7 +55,9 @@ python cyber_news_feed.py
 
 ## GitHub Actions setup
 
-The included workflow runs every day at 08:00 Hong Kong time.
+The included workflow runs every day at 08:07 Hong Kong time.
+The delivery runs on GitHub Actions, so your Mac does not need to be powered on at that time.
+After `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are stored in GitHub repository secrets, daily delivery is fully automated.
 
 Add these GitHub repository secrets:
 
