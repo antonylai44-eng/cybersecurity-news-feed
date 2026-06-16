@@ -2,12 +2,14 @@
 import argparse
 import datetime as dt
 import html
+import json
 import os
 import re
 import sys
 import time
 from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
+from pathlib import Path
 from typing import Iterable, Optional
 from urllib.parse import urlparse
 
@@ -125,6 +127,10 @@ class NewsItem:
     source: str
     published: dt.datetime
     score: int
+
+
+def normalized_title(title: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
 
 
 def clean_text(value: str, limit: Optional[int] = None) -> str:
@@ -245,9 +251,9 @@ def dedupe(items: Iterable[NewsItem]) -> list[NewsItem]:
     seen = set()
     unique = []
     for item in sorted(items, key=lambda item: item.score, reverse=True):
-        normalized_title = re.sub(r"[^a-z0-9]+", " ", item.title.lower()).strip()
+        title_key = normalized_title(item.title)
         domain = urlparse(item.link).netloc.lower()
-        key = (domain, normalized_title[:90])
+        key = (domain, title_key[:90])
         if key in seen or item.link in seen:
             continue
         seen.add(key)
@@ -256,13 +262,56 @@ def dedupe(items: Iterable[NewsItem]) -> list[NewsItem]:
     return unique
 
 
-def select_top_items(items: list[NewsItem], max_items: int, lookback_hours: int) -> list[NewsItem]:
+def item_fingerprint(item: NewsItem) -> str:
+    domain = urlparse(item.link).netloc.lower()
+    return f"{domain}|{normalized_title(item.title)[:160]}"
+
+
+def load_state(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def save_state(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def filter_previous_digest_items(
+    items: Iterable[NewsItem],
+    state: dict,
+    timezone_name: str,
+) -> list[NewsItem]:
+    tz = ZoneInfo(timezone_name)
+    today = dt.datetime.now(tz).date()
+    yesterday = (today - dt.timedelta(days=1)).isoformat()
+    if state.get("last_digest_date") != yesterday:
+        return list(items)
+
+    previous_fingerprints = set(state.get("last_digest_fingerprints", []))
+    if not previous_fingerprints:
+        return list(items)
+
+    return [item for item in items if item_fingerprint(item) not in previous_fingerprints]
+
+
+def select_top_items(
+    items: list[NewsItem],
+    max_items: int,
+    lookback_hours: int,
+    state: dict,
+    timezone_name: str,
+) -> list[NewsItem]:
     cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=lookback_hours)
     recent = [item for item in items if item.published >= cutoff]
     candidates = recent if len(recent) >= max_items else items
+    candidates = filter_previous_digest_items(dedupe(candidates), state, timezone_name)
     selected = []
     source_counts = {}
-    for item in dedupe(candidates):
+    for item in candidates:
         count = source_counts.get(item.source, 0)
         if count >= 3 and len(selected) < max_items - 2:
             continue
@@ -320,6 +369,10 @@ def build_digest(items: list[NewsItem], timezone_name: str, digest_title: str) -
     today = dt.datetime.now(tz).strftime("%Y年%m月%d日")
     translator = GoogleTranslator(source="auto", target="zh-TW")
     lines = [f"{digest_title} - {today}", ""]
+
+    if not items:
+        lines.append("今天沒有新的未重複網絡安全新聞。")
+        return "\n".join(lines).strip()
 
     for index, item in enumerate(items, start=1):
         title_zh = translate(item.title, translator)
@@ -439,6 +492,8 @@ def main() -> None:
     digest_title = os.getenv("NEWS_TITLE", "網絡安全每日情報摘要").strip()
     max_items = int(os.getenv("NEWS_MAX_ITEMS", "10"))
     lookback_hours = int(os.getenv("NEWS_LOOKBACK_HOURS", "72"))
+    state_file = Path(os.getenv("NEWS_STATE_FILE", ".news_state.json")).expanduser()
+    state = load_state(state_file)
 
     if args.get_chat_id:
         if not bot_token:
@@ -446,9 +501,7 @@ def main() -> None:
         print_chat_id(bot_token)
         return
 
-    items = select_top_items(fetch_items(), max_items, lookback_hours)
-    if not items:
-        raise SystemExit("No news items were found.")
+    items = select_top_items(fetch_items(), max_items, lookback_hours, state, timezone_name)
 
     digest = build_digest(items, timezone_name, digest_title)
     if args.dry_run:
@@ -459,6 +512,14 @@ def main() -> None:
         raise SystemExit("TELEGRAM_BOT_TOKEN is required.")
     chat_id = resolve_chat_id(bot_token, chat_id)
     send_telegram(digest, bot_token, chat_id)
+    tz = ZoneInfo(timezone_name)
+    save_state(
+        state_file,
+        {
+            "last_digest_date": dt.datetime.now(tz).date().isoformat(),
+            "last_digest_fingerprints": [item_fingerprint(item) for item in items],
+        },
+    )
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ Daily cybersecurity intelligence digest for Telegram, formatted in Traditional C
 - Collects security news from global and Hong Kong-focused sources.
 - Prioritizes Hong Kong, China, actively exploited vulnerabilities, ransomware, supply-chain threats, and major vendor advisories.
 - Selects the top 10 items.
+- Skips items already sent in the previous day's digest.
 - Translates titles and snippets into Traditional Chinese.
 - Includes the original English summary for cross-checking.
 - Sends the digest to a Telegram private chat.
@@ -58,6 +59,7 @@ python cyber_news_feed.py
 The included workflow runs every day at 08:07 Hong Kong time.
 The delivery runs on GitHub Actions, so your Mac does not need to be powered on at that time.
 After `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are stored in GitHub repository secrets, daily delivery is fully automated.
+The workflow also stores a small state file in the repository so the next day's digest can avoid repeating items already sent yesterday.
 
 Add these GitHub repository secrets:
 
