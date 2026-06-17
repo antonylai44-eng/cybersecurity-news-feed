@@ -367,6 +367,12 @@ def save_state(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def digest_already_sent_today(state: dict, timezone_name: str) -> bool:
+    tz = ZoneInfo(timezone_name)
+    today = dt.datetime.now(tz).date().isoformat()
+    return state.get("last_digest_date") == today
+
+
 def filter_previous_digest_items(
     items: Iterable[NewsItem],
     state: dict,
@@ -531,6 +537,9 @@ def send_telegram(text: str, bot_token: str, chat_id: str) -> None:
             timeout=20,
         )
         response.raise_for_status()
+        payload = response.json()
+        if not payload.get("ok", False):
+            raise SystemExit(f"Telegram sendMessage failed: {payload.get('description', 'unknown error')}")
         time.sleep(0.5)
 
 
@@ -539,6 +548,8 @@ def get_recent_chats(bot_token: str) -> list[dict]:
     response = requests.get(url, timeout=20)
     response.raise_for_status()
     data = response.json()
+    if not data.get("ok", False):
+        raise SystemExit(f"Telegram getUpdates failed: {data.get('description', 'unknown error')}")
     chats = []
     for update in data.get("result", [])[-20:]:
         message = update.get("message") or update.get("channel_post") or {}
@@ -594,6 +605,7 @@ def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser(description="Send a daily AI or cybersecurity news digest to Telegram.")
     parser.add_argument("--dry-run", action="store_true", help="Print the digest without sending it.")
+    parser.add_argument("--force-send", action="store_true", help="Send even if today's digest was already delivered.")
     parser.add_argument("--get-chat-id", action="store_true", help="Print recent Telegram chat IDs for the bot.")
     parser.add_argument("--topic", choices=("security", "ai"), default=os.getenv("NEWS_TOPIC", "security").strip().lower())
     args = parser.parse_args()
@@ -626,6 +638,10 @@ def main() -> None:
         return
 
     topic_state = state.get(state_key, {})
+    if digest_already_sent_today(topic_state, timezone_name) and not args.force_send:
+        print(f"Info: {state_key} digest already sent today. Skipping.")
+        return
+
     items = select_top_items(fetch_items(sources, scoring_fn=scoring_fn), max_items, lookback_hours, topic_state, timezone_name)
 
     digest = build_digest(items, timezone_name, digest_title, summary_fn=digest_builder)

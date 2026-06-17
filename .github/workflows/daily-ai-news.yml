@@ -2,8 +2,12 @@ name: Daily AI Telegram News
 
 on:
   schedule:
-    # 08:17 Asia/Hong_Kong is 00:17 UTC.
+    # 08:17, 08:47, and 09:17 Asia/Hong_Kong are 00:17, 00:47, and 01:17 UTC.
+    # GitHub can delay or drop scheduled jobs near the top of the hour during high load,
+    # so we schedule a few backups and let the script skip once today's digest is sent.
     - cron: "17 0 * * *"
+    - cron: "47 0 * * *"
+    - cron: "17 1 * * *"
   workflow_dispatch:
 
 jobs:
