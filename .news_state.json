@@ -15,18 +15,18 @@
     ]
   },
   "security": {
-    "last_digest_date": "2026-06-16",
+    "last_digest_date": "2026-06-17",
     "last_digest_fingerprints": [
-      "thehackernews.com|chinese hackers abused google workspace rules to steal research and defense emails",
-      "www.bleepingcomputer.com|chinese hackers breach redcap servers steal medical research",
-      "www.bleepingcomputer.com|cisco fixes sd wan vmanage flaw exploited in zero day attacks",
-      "www.govcert.gov.hk|security alert a26 06 16 multiple vulnerabilities in apache http server",
-      "www.govcert.gov.hk|security alert a26 06 27 multiple vulnerabilities in google chrome",
-      "www.govcert.gov.hk|high threat security alert a26 06 26 vulnerability in oracle peoplesoft",
-      "www.cisa.gov|cisa adds two known exploited vulnerabilities to catalog",
-      "www.bleepingcomputer.com|new attack turned microsoft 365 copilot into 1 click data theft tool",
-      "www.bleepingcomputer.com|infinite campus data breach affects 137 000 school staff accounts",
-      "thehackernews.com|critical splunk enterprise flaw lets attackers run code without authentication"
+      "www.govcert.gov.hk|high threat security alert a26 06 33 multiple vulnerabilities in fortinet fortisandbox",
+      "www.govcert.gov.hk|security alert a26 06 32 multiple vulnerabilities in google chrome",
+      "www.govcert.gov.hk|high threat security alert a26 06 30 multiple vulnerabilities in oracle products june 2026",
+      "thehackernews.com|the top 10 attack surface exposures in 2026",
+      "www.securityweek.com|microsoft teams relay servers abused in dragonforce ransomware attack",
+      "www.securityweek.com|chrome and firefox updated to patch critical high severity vulnerabilities",
+      "thehackernews.com|cisa warns of actively exploited joomla jce flaw allowing php code execution",
+      "thehackernews.com|cisco releases security updates for actively exploited sd wan manager flaw",
+      "thehackernews.com|china linked sprysocks backdoor expands to windows with driver based stealth",
+      "www.govcert.gov.hk|security alert a26 06 31 multiple vulnerabilities in firefox"
     ]
   }
 }
