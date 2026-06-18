@@ -13,6 +13,9 @@ on:
 jobs:
   send-news:
     runs-on: ubuntu-latest
+    concurrency:
+      group: daily-cyber-news
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
@@ -39,12 +42,3 @@ jobs:
           NEWS_TOPIC: security
           NEWS_STATE_FILE: .news_state.json
         run: python cyber_news_feed.py
-
-      - name: Commit digest state
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .news_state.json
-          git diff --cached --quiet && exit 0
-          git commit -m "Update daily news state"
-          git push
